@@ -7,6 +7,10 @@ pipeline {
         skipDefaultCheckout(true)
     }
 
+    environment {
+        DEFAULT_EMAIL_TO = 'vanlythouern51@gmail.com'
+    }
+
     parameters {
         booleanParam(name: 'DEPLOY_LOCAL', defaultValue: false,
                      description: 'Deploy containers on the Jenkins agent host (localhost:8088)')
