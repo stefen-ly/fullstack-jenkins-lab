@@ -26,6 +26,33 @@ pipeline {
             }
         }
 
+        stage('Test Docker Build Agent') {
+            agent {
+                label 'jcasc-linux'
+            }
+
+            steps {
+                echo 'Running on Jenkins Docker Agent!'
+
+                sh '''
+                    echo "=== Current User ==="
+                    whoami
+
+                    echo "=== Hostname ==="
+                    hostname
+
+                    echo "=== Working Directory ==="
+                    pwd
+
+                    echo "=== Java Version ==="
+                    java -version
+
+                    echo "=== OS Information ==="
+                    cat /etc/os-release
+                '''
+            }
+        }
+
         stage('Test JCasC Credential') {
             steps {
                 withCredentials([
@@ -56,4 +83,3 @@ pipeline {
         }
     }
 }
-
