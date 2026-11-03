@@ -66,7 +66,7 @@ export default function App() {
         <section className="intro">
           <div className="eyebrow">SPRING BOOT × REACT × JENKINS</div>
           <h1>Build something.<br /><span>Ship with confidence.</span></h1>
-          <p>A tiny task manager powering a full-stack CI/CD lab. Add tasks, mark them done, then watch Jenkins test and deploy both services.</p>
+          <p>កម្មវិធីគ្រប់គ្រងភារកិច្ចដ៏តូចមួយ ដែលដំណើរការមន្ទីរពិសោធន៍ CI/CD Full-stack។ បន្ថែមភារកិច្ច គូសសម្គាល់ថាបានរួចរាល់ រួចមើល Jenkins ធ្វើតេស្ត និងដាក់ឱ្យដំណើរការ (deploy) សេវាកម្មទាំងពីរ។</p>
         </section>
         <section className="workspace">
           <div className="section-heading"><div><div className="eyebrow">PROJECT BOARD</div><h2>My tasks</h2></div><span className="count">{stats.total} tasks</span></div>
