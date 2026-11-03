@@ -1,0 +1,59 @@
+
+@Library('devops-lib') _
+
+pipeline {
+    agent none
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
+
+    stages {
+        stage('Test GitHub Jenkinsfile') {
+            steps {
+                echo 'Pipeline loaded from GitHub!'
+                echo "Job: ${env.JOB_NAME}"
+                echo "Build: ${env.BUILD_NUMBER}"
+            }
+        }
+
+        stage('Test Shared Library') {
+            steps {
+                script {
+                    sayHello('GitHub SCM Pipeline')
+                }
+            }
+        }
+
+        stage('Test JCasC Credential') {
+            steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'lab-api-token',
+                        variable: 'LAB_TOKEN'
+                    )
+                ]) {
+                    script {
+                        if (!env.LAB_TOKEN?.trim()) {
+                            error 'Credential is empty!'
+                        }
+
+                        echo 'JCasC Credential loaded successfully!'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'GitHub SCM Pipeline SUCCESS!'
+        }
+
+        failure {
+            echo 'GitHub SCM Pipeline FAILED!'
+        }
+    }
+}
+
