@@ -152,3 +152,6 @@ Browser http://localhost:5173; Vite proxies `/api` to Spring Boot on localhost:8
 - **No integration secrets in Git:** only credential IDs are present.
 - **No automatic notifications if the post block cannot start:** e.g. Jenkins Controller process unavailable or the Job never started.
 - **Do not run untrusted PR code on a Docker-privileged agent.**
+
+## Jenkins Auto Trigger Lab
+Test automatic build from GitHub.
