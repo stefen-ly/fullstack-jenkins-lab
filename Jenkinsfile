@@ -22,7 +22,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh 'docker compose up -d --no-build --remove-orphans'
+                sh 'docker compose up -d --no-build'
             }
         }
 
