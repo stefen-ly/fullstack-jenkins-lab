@@ -30,9 +30,9 @@ pipeline {
             steps {
                 sh '''
                     curl -fsS --retry 15 \
-                      --retry-delay 2 \
-                      --retry-connrefused \
-                      http://127.0.0.1:8088/api/health
+                    --retry-delay 2 \
+                    --retry-connrefused \
+                    http://127.0.0.1:8090/api/health
                 '''
             }
         }
