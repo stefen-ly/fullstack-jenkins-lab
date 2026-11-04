@@ -3,13 +3,27 @@
 
 import json
 import os
+import re
 import sys
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from html import escape
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
+
+
+# Escape Telegram MarkdownV2 special characters
+def md(text):
+    return re.sub(
+        r'([_*\[\]()~`>#+\-=|{}.!\\])',
+        r'\\\1',
+        str(text)
+    )
+
+
+def md_url(url):
+    return str(url).replace("\\", "\\\\").replace(")", "\\)")
+
 
 # Jenkins environment variables
 token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
@@ -23,49 +37,53 @@ if not token or not chat_id:
     print("Telegram credentials missing", file=sys.stderr)
     sys.exit(2)
 
-# Status icons
-icons = {
+
+# Build result
+status_icons = {
     "SUCCESS": "✅",
     "FAILURE": "❌",
     "UNSTABLE": "⚠️",
-    "ABORTED": "⏹️"
+    "ABORTED": "⏹️",
 }
 
-icon = icons.get(status, "ℹ️")
+icon = status_icons.get(status, "ℹ️")
 
-# Cambodia timezone
+# Current Cambodia time (notification time)
 now = datetime.now(ZoneInfo("Asia/Phnom_Penh"))
-build_time = now.strftime("%d %b %Y, %H:%M")
+notification_time = now.strftime("%d %b %Y, %H:%M")
 
-# Escape dynamic text for Telegram HTML
-safe_status = escape(status)
-safe_job = escape(job)
-safe_build = escape(build)
-safe_url = escape(build_url, quote=True)
 
+# MarkdownV2 message
 message = (
-    f"{icon} <b>Jenkins Pipeline {safe_status}</b>\n\n"
-    f"📦 <b>Project:</b> Fullstack Application\n"
-    f"🔧 <b>Job:</b> {safe_job}\n"
-    f"🔢 <b>Build:</b> #{safe_build}\n"
-    f"📊 <b>Status:</b> {safe_status}\n"
-    f"🕒 <b>Time:</b> {build_time} (Cambodia)\n\n"
+    f"{icon} *JENKINS PIPELINE {md(status)}*\n"
+    f"{md('━━━━━━━━━━━━━━━━━━━━')}\n\n"
+    f"📦 *Project:* {md('Fullstack Application')}\n"
+    f"🛠️ *Job:* {md(job)}\n"
+    f"🔢 *Build:* {md('#' + build)}\n"
+    f"📊 *Status:* {md(status)}\n"
+    f"🕒 *Time:* {md(notification_time)} ICT\n\n"
 )
 
-if build_url:
+if build_url.startswith(("http://", "https://")):
     message += (
-        f'🔗 <a href="{safe_url}">View Build Details</a>'
+        f"🔗 [View Build Details]({md_url(build_url)})"
     )
+else:
+    message += "🔗 Build details unavailable"
 
-# Telegram API
+
+# Telegram Bot API
 endpoint = f"https://api.telegram.org/bot{token}/sendMessage"
 
 payload = urlencode({
     "chat_id": chat_id,
     "text": message,
-    "parse_mode": "HTML",
-    "disable_web_page_preview": "true"
+    "parse_mode": "MarkdownV2",
+    "link_preview_options": json.dumps({
+        "is_disabled": True
+    })
 }).encode("utf-8")
+
 
 try:
     request = Request(
@@ -84,10 +102,7 @@ try:
     print("Telegram notification accepted by API")
 
 except HTTPError as error:
-    print(
-        f"Telegram HTTP error: {error.code}",
-        file=sys.stderr
-    )
+    print(f"Telegram HTTP error: {error.code}", file=sys.stderr)
     sys.exit(1)
 
 except (URLError, TimeoutError, ValueError) as error:
